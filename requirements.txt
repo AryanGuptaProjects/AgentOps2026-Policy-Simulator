@@ -5,3 +5,4 @@ numpy
 tavily-python
 chromadb
 pydeck
+python-dotenv
