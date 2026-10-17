@@ -1,0 +1,6 @@
+{
+    "agent_name": "Tech Disruptor",
+    "persona_type": "Tech Disruptor",
+    "strategy": "Launch an IoT and SaaS platform called 'AeroShield.io' that retrofits mandatory perimeter PM10 sensor housings with edge-computing laminar-flow clean-air micro-blowers. The software continuously scrapes real-time telemetry from city-integrated sensor feeds, predicting the 15-minute rolling average. Milliseconds before the threshold hits 148 \u00b5g/m\u00b3, the hardware injects a localized pocket of HEPA-filtered clean air directly into the sensor intake cowl, artificially resetting the rolling average without turning on costly site-wide water cannons. This automated sensor spoofing is sold as a compliance-as-a-service subscription across hundreds of construction sites, allowing uninterrupted high-dust excavation and zero actual dust suppression.",
+    "emissions_multiplier": 2.7
+}

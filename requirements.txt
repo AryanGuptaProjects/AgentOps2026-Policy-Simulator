@@ -1,0 +1,8 @@
+langgraph
+langchain-google-genai
+streamlit
+numpy
+tavily-python
+chromadb
+pydeck
+python-dotenv
