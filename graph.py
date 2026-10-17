@@ -1,10 +1,14 @@
 import os
+import json
+from pathlib import Path
 from typing import TypedDict, List
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
+
+from prompts import SWARM_PERSONAS, get_swarm_prompt
 
 # --- Load Environment Variables ---
 load_dotenv()
@@ -46,35 +50,67 @@ def input_node(state: SimulationState):
     return {"policy_proposal": state["policy_proposal"]}
 
 def swarm_node(state: SimulationState):
-    """Task 1 & 3 Test: Getting structured JSON from Gemini using a simple prompt."""
-    print("-> [Swarm Node] Asking Gemini for a loophole strategy in JSON format...")
+    """Generates loophole strategies for the 3 cheater personas and writes individual JSON files."""
+    print("-> [Swarm Node] Generating 3 adversarial cheater personas using Gemini...")
     
     policy = state["policy_proposal"]
+    output_dir = Path("outputs")
+    output_dir.mkdir(exist_ok=True)
     
-    # Simple test prompt (Task 2 multi-persona prompts will be added later)
-    prompt = f"Given this city policy: '{policy}', write a brief loophole strategy from a delivery driver perspective."
+    agent_results = []
     
-    # Invoke Gemini with structured output enforcement
-    result: LoopholeResponse = structured_gemini_llm.invoke([HumanMessage(content=prompt)])
+    for idx, (persona_name, persona_desc) in enumerate(SWARM_PERSONAS.items(), start=1):
+        print(f"   [+] Querying persona {idx}/3: '{persona_name}'...")
+        prompt = get_swarm_prompt(policy, persona_name, persona_desc)
+        
+        # Invoke Gemini with structured output enforcement
+        result: LoopholeResponse = structured_gemini_llm.invoke([HumanMessage(content=prompt)])
+        
+        cheater_data = {
+            "agent_name": result.agent_name if result.agent_name else persona_name,
+            "persona_type": persona_name,
+            "strategy": result.strategy,
+            "emissions_multiplier": result.emissions_multiplier
+        }
+        
+        # Write individual JSON file for this cheater
+        clean_name = persona_name.lower().replace(" ", "_")
+        json_file_path = output_dir / f"cheater_{idx}_{clean_name}.json"
+        with open(json_file_path, "w", encoding="utf-8") as f:
+            json.dump(cheater_data, f, indent=4)
+            
+        cheater_data["file_path"] = str(json_file_path)
+        agent_results.append(cheater_data)
+        print(f"       [✓] Saved individual JSON: {json_file_path}")
     
-    agent_result = {
-        "agent": result.agent_name,
-        "action": result.strategy,
-        "emissions_multiplier": result.emissions_multiplier
-    }
-    
-    print(f"   [✓] Gemini successfully returned structured JSON!")
-    
-    return {"demographic_actions": [agent_result]}
+    return {"demographic_actions": agent_results}
 
 def evaluator_node(state: SimulationState):
-    """The Evaluator: Reviews the loophole and writes a report."""
-    print("-> [Evaluator Node] Analyzing Gemini's output...")
+    """The Evaluator: Reviews the loopholes found by the 3 cheaters and writes a report."""
+    print("-> [Evaluator Node] Analyzing all cheater outputs and evaluating rebound effects...")
     
     policy = state["policy_proposal"]
     actions = state["demographic_actions"]
     
-    prompt = f"Policy: {policy}\n\nWorkaround: {actions}\nWrite a short evaluation report on the environmental risk."
+    # Format the 3 cheater strategies for the evaluator
+    actions_summary = "\n".join([
+        f"- {a['agent_name']} ({a['persona_type']}): {a['strategy']} (Emissions Multiplier: {a['emissions_multiplier']}x)"
+        for a in actions
+    ])
+    
+    prompt = f"""
+Policy Under Evaluation:
+{policy}
+
+Adversarial Swarm Loophole Strategies Identified:
+{actions_summary}
+
+Write a comprehensive policy stress-test evaluation report:
+1. Primary Intent of Policy
+2. Vulnerability Breakdown (how the loopholes compromise the policy)
+3. Projected Rebound Effects (Jevons Paradox & environmental impact)
+4. Recommended Policy Patch
+"""
     response = gemini_llm.invoke([HumanMessage(content=prompt)])
     
     # Extract clean text from Gemini response
@@ -104,7 +140,7 @@ app = workflow.compile()
 
 # --- TESTING THE GEMINI PIPELINE ---
 if __name__ == "__main__":
-    print("=== STARTING GEMINI API & STRUCTURED OUTPUT TEST ===")
+    print("=== STARTING 3-CHEATER SWARM & JSON GENERATION TEST ===")
     
     initial_input = {
         "policy_proposal": "Ban all gas-powered delivery vans in the city center.",
@@ -117,9 +153,8 @@ if __name__ == "__main__":
     
     print("\n=== FINAL TEST OUTPUT ===")
     print(f"Policy: {final_output['policy_proposal']}\n")
-    print("Structured JSON Output from Gemini:")
+    print("Generated 3 Cheater Personas:")
     for action in final_output['demographic_actions']:
-        print(f" - Agent: {action['agent']}")
-        print(f" - Strategy: {action['action']}")
-        print(f" - Multiplier: {action['emissions_multiplier']}x")
+        print(f" - [{action['persona_type']}] {action['agent_name']}: {action['strategy']}")
+        print(f"   Multiplier: {action['emissions_multiplier']}x | Saved to: {action['file_path']}")
     print(f"\nEvaluator Report:\n{final_output['environmental_impact']}")
