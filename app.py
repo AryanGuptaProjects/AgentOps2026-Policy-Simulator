@@ -12,7 +12,7 @@ with st.sidebar:
     aggression = st.slider("Swarm Aggression Level", 1, 10, 7)
     city_context = st.selectbox("City Context", ["Bengaluru", "London", "Tokyo", "New York"])
     st.markdown("---")
-    active_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    active_model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
     st.caption(f"Brain: {active_model}")
     st.caption("Orchestration: LangGraph + Structured JSON")
     

@@ -31,9 +31,9 @@ class SimulationState(TypedDict):
     loop_count: int                
 
 # --- TASK 1: Initialize Gemini API Connection ---
-# Defaults to gemini-3.5-flash for reliable free-tier quota and structured output support
+# Defaults to gemini-3.8-flash for reliable free-tier quota and structured output support
 gemini_llm = ChatGoogleGenerativeAI(
-    model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
+    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
     temperature=0.7,
     google_api_key=api_key,
 )

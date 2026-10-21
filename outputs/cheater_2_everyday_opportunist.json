@@ -1,6 +1,6 @@
 {
     "agent_name": "Everyday Opportunist",
     "persona_type": "Everyday Opportunist",
-    "strategy": "Subdivide property developments into adjacent 950 square meter parcels registered under different family members or holding entities to legally stay below the 1,000 m\u00b2 threshold, completely exempting the site from mandatory PM10 monitors, misting systems, and operational fines while running high-dust construction completely unsuppressed to cut costs.",
+    "strategy": "I exploit the exemption on private commuter vehicles by running an informal last-mile relay service using my personal older petrol scooter. Commercial delivery vans drop bulk parcels just outside the inner core cordon boundary before 7 AM or at the perimeter to avoid the $5/km tax, and I pick up individual consignments for a small cash markup to deliver inside the zone throughout the day. By replacing consolidated van deliveries with dozens of fragmented, inefficient trips on an uninspected personal two-wheeler, I pocket the delivery surcharge margin while circumventing commercial classification entirely.",
     "emissions_multiplier": 2.4
 }
